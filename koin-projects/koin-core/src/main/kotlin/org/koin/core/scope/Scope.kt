@@ -50,7 +50,7 @@ data class Scope(
         get() = _closed
     private val _callbacks = arrayListOf<ScopeCallback>()
     private var _closed: Boolean = false
-    private var _parameters: DefinitionParameters? = null
+    private val parametersList = arrayListOf<DefinitionParameters>()
 
     val logger = _koin.logger
 
@@ -240,7 +240,7 @@ data class Scope(
                 }
                 ?: run {
                     _koin.logger.debug("'${clazz.getFullName()}' - q:'$qualifier' not found in current scope's source")
-                    _parameters?.getOrNull<T>(clazz)
+                    findInParameters(clazz)
                 }
                 ?: run {
                     _koin.logger.debug("'${clazz.getFullName()}' - q:'$qualifier' not found in injected parameters")
@@ -255,6 +255,15 @@ data class Scope(
     @Suppress("UNCHECKED_CAST")
     private fun <T> getFromSource(clazz: KClass<*>): T? {
         return if (clazz.isInstance(_source)) _source as? T else null
+    }
+
+    private fun <T : Any> findInParameters(clazz: KClass<T>) : T? {
+        var instance: T? = null
+        for (parameters in parametersList) {
+            instance = parameters.getOrNull(clazz)
+            if (instance != null) break
+        }
+        return instance
     }
 
     private fun <T : Any> findInOtherScope(
@@ -424,11 +433,11 @@ data class Scope(
     }
 
     fun addParameters(parameters: DefinitionParameters) {
-        _parameters = parameters
+        parametersList.add(parameters)
     }
 
-    fun clearParameters() {
-        _parameters = null
+    fun removeParameters(parameters: DefinitionParameters) {
+        parametersList.remove(parameters)
     }
 }
 

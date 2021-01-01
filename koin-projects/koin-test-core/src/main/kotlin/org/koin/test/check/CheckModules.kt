@@ -107,5 +107,5 @@ private fun checkDefinition(
     }
     scope.addParameters(parameters)
     scope.get(definition.primaryType, definition.qualifier) { parameters }
-    scope.clearParameters()
+    scope.removeParameters(parameters)
 }

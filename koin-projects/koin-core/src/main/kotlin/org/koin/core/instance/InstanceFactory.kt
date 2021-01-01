@@ -52,7 +52,7 @@ abstract class InstanceFactory<T>(private val _koin: Koin, val beanDefinition: B
                 context.scope,
                 parameters
             )
-            context.scope.clearParameters()
+            context.scope.removeParameters(parameters)
             return value
         } catch (e: Exception) {
             val stack =
